@@ -1,0 +1,354 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Modern Image Filters</title>
+    <style>
+      :root { color-scheme: dark; }
+      * { box-sizing: border-box; }
+      body { margin: 0; font-family: Inter, system-ui, sans-serif; background: #0a0a0a; color: #f5f5f5; }
+      main { display: flex; height: 100vh; }
+      .previewPane { flex: 1; display: flex; align-items: center; justify-content: center; border-right: 1px solid #262626; background: #111; padding: 12px; }
+      .previewPane img { max-width: 100%; max-height: 100%; object-fit: contain; border-radius: 8px; }
+      .controls { width: 360px; padding: 14px; display: flex; flex-direction: column; gap: 10px; background: #0f0f0f; }
+      .tabs { display: flex; gap: 6px; }
+      .tab { border: 1px solid #404040; background: transparent; color: #ddd; padding: 6px 10px; border-radius: 8px; font-size: 12px; cursor: pointer; }
+      .tab.active { background: #e5e5e5; color: #111; border-color: #e5e5e5; }
+      .card { border: 1px solid #262626; border-radius: 10px; background: #171717; padding: 10px; }
+      .row { display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+      .effects { display: grid; gap: 8px; }
+      .effect { border: 1px solid #262626; border-radius: 8px; background: #171717; padding: 10px; display: flex; align-items: center; justify-content: space-between; }
+      .btn { border: 1px solid #404040; background: transparent; color: #eee; border-radius: 8px; padding: 8px 10px; cursor: pointer; }
+      .btn.primary { border: 0; background: #e5e5e5; color: #111; font-weight: 600; }
+      .muted { color: #a3a3a3; font-size: 12px; }
+      .pushBottom { margin-top: auto; }
+      .overlay { position: fixed; inset: 0; background: rgba(0,0,0,0.45); display: none; align-items: center; justify-content: center; z-index: 90; }
+      .overlay.show { display: flex; }
+      .overlayCard { border: 1px solid #404040; background: #171717; border-radius: 10px; padding: 12px 14px; font-size: 13px; }
+      .drawer { position: fixed; top: 0; right: 0; width: 360px; height: 100vh; border-left: 1px solid #262626; background: #111; z-index: 80; transform: translateX(100%); transition: transform .2s ease; padding: 12px; }
+      .drawer.show { transform: translateX(0); }
+      .group { margin-bottom: 12px; }
+      .pill { border: 1px solid #262626; border-radius: 8px; background: #171717; width: 100%; text-align: left; color: #eee; padding: 8px; margin-bottom: 6px; cursor: pointer; }
+      .hidden { display: none; }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="previewPane">
+        <img id="previewImage" class="hidden" alt="Preview" />
+        <div id="previewEmpty" class="muted">Select an image-filled layer to preview.</div>
+      </section>
+      <section class="controls">
+        <div>
+          <div style="font-size:18px;font-weight:700">Control Panel</div>
+          <div class="tabs" style="margin-top:8px">
+            <button class="tab active" data-tab="Apply Filters">Apply Filters</button>
+            <button class="tab" data-tab="Settings">Settings</button>
+            <button class="tab" data-tab="About">About</button>
+          </div>
+        </div>
+
+        <div id="applyTab">
+          <div class="card">
+            <div id="selectionState">Selection status: none</div>
+            <div id="selectionMeta" class="muted" style="margin-top:6px">No image selected.</div>
+          </div>
+          <div class="row" style="margin-top:10px">
+            <div>Applied Effects (<span id="effectsCount">0</span>/3)</div>
+            <button id="openEffectsBtn" class="btn">+</button>
+          </div>
+          <div id="effectsList" class="effects" style="margin-top:8px"></div>
+          <div class="pushBottom row" style="margin-top:12px">
+            <button id="applyBtn" class="btn primary">Apply stack</button>
+            <button id="refreshBtn" class="btn">Refresh</button>
+          </div>
+        </div>
+
+        <div id="settingsTab" class="hidden">
+          <label class="card" style="display:flex;gap:8px;align-items:flex-start">
+            <input id="saveAsNewImage" type="checkbox" />
+            <span style="font-size:13px">If enabled, you can save the result as a new image. If disabled, the image will be added to the fills.</span>
+          </label>
+          <button id="quickLaunchBtn" class="btn" style="margin-top:10px;width:100%">Add quick launch button to selected layer</button>
+        </div>
+
+        <div id="aboutTab" class="hidden">
+          <div class="card muted">Modular image filter stacker. Add up to 3 effects and apply in sequence.</div>
+        </div>
+
+        <div id="statusText" class="muted">Waiting for plugin runtime...</div>
+      </section>
+    </main>
+
+    <div id="overlay" class="overlay"><div class="overlayCard">Applying filter...</div></div>
+    <aside id="effectsDrawer" class="drawer">
+      <div class="row" style="margin-bottom:10px">
+        <strong>Add Effects</strong>
+        <button id="closeDrawerBtn" class="btn">x</button>
+      </div>
+      <div id="allEffects"></div>
+    </aside>
+
+    <script>
+      const state = {
+        categories: [],
+        filters: [],
+        chosenEffects: [],
+        activeTab: "Apply Filters",
+        isProcessing: false,
+        basePreviewBytes: null
+      };
+
+      const selectionStateEl = document.getElementById("selectionState");
+      const selectionMetaEl = document.getElementById("selectionMeta");
+      const statusTextEl = document.getElementById("statusText");
+      const applyBtn = document.getElementById("applyBtn");
+      const refreshBtn = document.getElementById("refreshBtn");
+      const openEffectsBtn = document.getElementById("openEffectsBtn");
+      const effectsListEl = document.getElementById("effectsList");
+      const effectsCountEl = document.getElementById("effectsCount");
+      const overlayEl = document.getElementById("overlay");
+      const drawerEl = document.getElementById("effectsDrawer");
+      const closeDrawerBtn = document.getElementById("closeDrawerBtn");
+      const allEffectsEl = document.getElementById("allEffects");
+      const previewImageEl = document.getElementById("previewImage");
+      const previewEmptyEl = document.getElementById("previewEmpty");
+      const saveAsNewImageEl = document.getElementById("saveAsNewImage");
+      const quickLaunchBtn = document.getElementById("quickLaunchBtn");
+      let previewObjectUrl = null;
+      let previewRenderToken = 0;
+
+      function send(message) { parent.postMessage({ pluginMessage: message }, "*"); }
+      function setStatus(text) { statusTextEl.textContent = text; }
+      function setProcessing(value) {
+        state.isProcessing = value;
+        applyBtn.disabled = value;
+        refreshBtn.disabled = value;
+        openEffectsBtn.disabled = value;
+        applyBtn.textContent = value ? "Processing..." : "Apply stack";
+        overlayEl.classList[value ? "add" : "remove"]("show");
+      }
+
+      function renderTabs() {
+        document.querySelectorAll("[data-tab]").forEach((button) => {
+          const active = button.getAttribute("data-tab") === state.activeTab;
+          button.classList.toggle("active", active);
+        });
+        document.getElementById("applyTab").classList.toggle("hidden", state.activeTab !== "Apply Filters");
+        document.getElementById("settingsTab").classList.toggle("hidden", state.activeTab !== "Settings");
+        document.getElementById("aboutTab").classList.toggle("hidden", state.activeTab !== "About");
+      }
+
+      function renderChosenEffects() {
+        effectsCountEl.textContent = String(state.chosenEffects.length);
+        effectsListEl.innerHTML = "";
+        if (state.chosenEffects.length === 0) {
+          effectsListEl.innerHTML = "<div class='muted'>No effects selected.</div>";
+          return;
+        }
+        state.chosenEffects.forEach((effectId) => {
+          const effect = state.filters.find((f) => f.id === effectId);
+          const row = document.createElement("div");
+          row.className = "effect";
+          const name = document.createElement("span");
+          name.textContent = effect ? effect.name + (effect.premium ? " (Premium)" : "") : effectId;
+          const remove = document.createElement("button");
+          remove.className = "btn";
+          remove.textContent = "Remove";
+          remove.onclick = () => {
+            state.chosenEffects = state.chosenEffects.filter((id) => id !== effectId);
+            renderChosenEffects();
+            refreshPreviewFromStack().catch((error) => {
+              setStatus(error instanceof Error ? error.message : "Preview render failed.");
+            });
+          };
+          row.appendChild(name);
+          row.appendChild(remove);
+          effectsListEl.appendChild(row);
+        });
+      }
+
+      async function refreshPreviewFromStack() {
+        if (!state.basePreviewBytes) {
+          previewImageEl.classList.add("hidden");
+          previewEmptyEl.classList.remove("hidden");
+          return;
+        }
+        const token = ++previewRenderToken;
+        let currentBytes = state.basePreviewBytes;
+        for (let i = 0; i < state.chosenEffects.length; i += 1) {
+          currentBytes = await processBytes(state.chosenEffects[i], currentBytes);
+        }
+        if (token !== previewRenderToken) {
+          return;
+        }
+        if (previewObjectUrl) {
+          URL.revokeObjectURL(previewObjectUrl);
+        }
+        previewObjectUrl = URL.createObjectURL(new Blob([currentBytes], { type: "image/png" }));
+        previewImageEl.src = previewObjectUrl;
+        previewImageEl.classList.remove("hidden");
+        previewEmptyEl.classList.add("hidden");
+      }
+
+      function renderAllEffects() {
+        allEffectsEl.innerHTML = "";
+        state.categories.forEach((category) => {
+          const group = document.createElement("div");
+          group.className = "group";
+          const title = document.createElement("div");
+          title.className = "muted";
+          title.style.marginBottom = "6px";
+          title.textContent = category;
+          group.appendChild(title);
+          state.filters.filter((f) => f.category === category).forEach((effect) => {
+            const button = document.createElement("button");
+            button.className = "pill";
+            button.textContent = effect.name + (effect.premium ? " (Premium)" : "");
+            button.onclick = () => {
+              if (state.chosenEffects.includes(effect.id)) return;
+              if (state.chosenEffects.length >= 3) {
+                setStatus("You can add a maximum of 3 effects.");
+                return;
+              }
+              state.chosenEffects.push(effect.id);
+              renderChosenEffects();
+              drawerEl.classList.remove("show");
+              refreshPreviewFromStack().catch((error) => {
+                setStatus(error instanceof Error ? error.message : "Preview render failed.");
+              });
+            };
+            group.appendChild(button);
+          });
+          allEffectsEl.appendChild(group);
+        });
+      }
+
+      function clamp(value) { return Math.max(0, Math.min(255, value)); }
+      function runAlgorithm(filterId, pixels, width, height) {
+        if (filterId === "tactile-grain") {
+          for (let i = 0; i < pixels.length; i += 4) { const n = (Math.random() - 0.5) * 24; pixels[i] = clamp(pixels[i] + n); pixels[i+1] = clamp(pixels[i+1] + n); pixels[i+2] = clamp(pixels[i+2] + n); }
+          return;
+        }
+        if (filterId === "tactile-print") {
+          for (let i = 0; i < pixels.length; i += 4) { pixels[i] = clamp(pixels[i] * 1.05 + 8); pixels[i+1] = clamp(pixels[i+1] + 5); pixels[i+2] = clamp(pixels[i+2] * 0.95); }
+          return;
+        }
+        if (filterId === "glitch-rgb-split") {
+          const original = new Uint8ClampedArray(pixels); const offset = 2;
+          for (let y = 0; y < height; y += 1) for (let x = 0; x < width; x += 1) { const i = (y*width+x)*4; const l=(y*width+Math.max(0,x-offset))*4; const r=(y*width+Math.min(width-1,x+offset))*4; pixels[i]=original[r]; pixels[i+2]=original[l+2]; }
+          return;
+        }
+        if (filterId === "glitch-scanline") {
+          for (let y = 0; y < height; y += 1) { const a = y % 2 === 0 ? 0.88 : 1; for (let x = 0; x < width; x += 1) { const i=(y*width+x)*4; pixels[i]=clamp(pixels[i]*a); pixels[i+1]=clamp(pixels[i+1]*a); pixels[i+2]=clamp(pixels[i+2]*a);} }
+          return;
+        }
+        if (filterId === "uncanny-haze") {
+          for (let i = 0; i < pixels.length; i += 4) { const avg=(pixels[i]+pixels[i+1]+pixels[i+2])/3; pixels[i]=clamp(pixels[i]*0.86+avg*0.2+12); pixels[i+1]=clamp(pixels[i+1]*0.9+avg*0.16+10); pixels[i+2]=clamp(pixels[i+2]*1.04+avg*0.08+8); }
+          return;
+        }
+        if (filterId === "uncanny-echo") {
+          const original = new Uint8ClampedArray(pixels); const xs=3, ys=2;
+          for (let y = 0; y < height; y += 1) for (let x = 0; x < width; x += 1) { const i=(y*width+x)*4; const sx=Math.max(0,x-xs); const sy=Math.max(0,y-ys); const s=(sy*width+sx)*4; pixels[i]=clamp(original[i]*0.75+original[s]*0.25); pixels[i+1]=clamp(original[i+1]*0.8+original[s+1]*0.2); pixels[i+2]=clamp(original[i+2]*0.9+original[s+2]*0.1);}
+        }
+      }
+
+      async function processBytes(filterId, imageBytes) {
+        const inputBytes = imageBytes instanceof Uint8Array ? imageBytes : new Uint8Array(imageBytes);
+        const blob = new Blob([inputBytes], { type: "image/png" });
+        const bitmap = await createImageBitmap(blob);
+        const maxPixels = 1000000;
+        const pixelCount = bitmap.width * bitmap.height;
+        const scale = pixelCount > maxPixels ? Math.sqrt(maxPixels / pixelCount) : 1;
+        const workWidth = Math.max(1, Math.round(bitmap.width * scale));
+        const workHeight = Math.max(1, Math.round(bitmap.height * scale));
+        const canvas = document.createElement("canvas");
+        canvas.width = workWidth; canvas.height = workHeight;
+        const ctx = canvas.getContext("2d", { willReadFrequently: true, desynchronized: true });
+        if (!ctx) throw new Error("2D Canvas context unavailable.");
+        ctx.drawImage(bitmap, 0, 0, workWidth, workHeight);
+        const imageData = ctx.getImageData(0, 0, workWidth, workHeight);
+        runAlgorithm(filterId, imageData.data, workWidth, workHeight);
+        ctx.putImageData(imageData, 0, 0);
+        let outCanvas = canvas;
+        if (workWidth !== bitmap.width || workHeight !== bitmap.height) {
+          const up = document.createElement("canvas");
+          up.width = bitmap.width; up.height = bitmap.height;
+          const upCtx = up.getContext("2d", { desynchronized: true });
+          if (!upCtx) throw new Error("Upscale context unavailable.");
+          upCtx.imageSmoothingEnabled = true; upCtx.imageSmoothingQuality = "high";
+          upCtx.drawImage(canvas, 0, 0, up.width, up.height);
+          outCanvas = up;
+        }
+        const outBlob = await new Promise((resolve) => outCanvas.toBlob(resolve, "image/png"));
+        if (!outBlob) throw new Error("Failed to encode processed image.");
+        const buffer = await outBlob.arrayBuffer();
+        return new Uint8Array(buffer);
+      }
+
+      window.onmessage = (event) => {
+        const message = event.data && event.data.pluginMessage;
+        if (!message) return;
+        switch (message.type) {
+          case "FILTER_CATALOG":
+            state.categories = message.payload.categories || [];
+            state.filters = message.payload.filters || [];
+            renderAllEffects();
+            if (state.chosenEffects.length === 0 && state.filters[0]) state.chosenEffects = [state.filters[0].id];
+            renderChosenEffects();
+            setStatus("Filter catalog loaded.");
+            break;
+          case "SELECTION_STATUS":
+            selectionStateEl.textContent = "Selection status: " + message.payload.state;
+            if (message.payload.nodeName) selectionMetaEl.textContent = message.payload.nodeName + " (" + Math.round(message.payload.width || 0) + " x " + Math.round(message.payload.height || 0) + ")";
+            else selectionMetaEl.textContent = message.payload.reason || "No image selected.";
+            break;
+          case "SELECTION_PREVIEW": {
+            const bytes = message.payload.imageBytes instanceof Uint8Array ? message.payload.imageBytes : new Uint8Array(message.payload.imageBytes);
+            state.basePreviewBytes = bytes;
+            refreshPreviewFromStack().catch((error) => {
+              setStatus(error instanceof Error ? error.message : "Preview render failed.");
+            });
+            break;
+          }
+          case "PROCESSING_ACK":
+            setStatus(message.payload.message);
+            break;
+          case "PROCESS_IMAGE":
+            setProcessing(true);
+            setStatus("Processing " + message.payload.filterId + "...");
+            processBytes(message.payload.filterId, message.payload.imageBytes)
+              .then((processed) => {
+                send({ type: "PROCESSING_RESULT", payload: { requestId: message.payload.requestId, filterId: message.payload.filterId, success: true, imageBytes: processed, mimeType: "image/png" } });
+              })
+              .catch((error) => {
+                send({ type: "PROCESSING_RESULT", payload: { requestId: message.payload.requestId, filterId: message.payload.filterId, success: false, error: error instanceof Error ? error.message : "UI processing failed." } });
+              })
+              .finally(() => setProcessing(false));
+            break;
+          case "ERROR":
+            setStatus(message.payload.message);
+            break;
+        }
+      };
+
+      document.querySelectorAll("[data-tab]").forEach((button) => {
+        button.addEventListener("click", () => { state.activeTab = button.getAttribute("data-tab"); renderTabs(); });
+      });
+      openEffectsBtn.onclick = () => drawerEl.classList.add("show");
+      closeDrawerBtn.onclick = () => drawerEl.classList.remove("show");
+      refreshBtn.onclick = () => send({ type: "GET_SELECTION" });
+      applyBtn.onclick = () => {
+        if (state.chosenEffects.length === 0) { setStatus("Add at least one effect."); return; }
+        send({ type: "APPLY_FILTER_STACK", payload: { filterIds: state.chosenEffects.slice(0, 3), saveAsNewImage: !!saveAsNewImageEl.checked } });
+      };
+      quickLaunchBtn.onclick = () => send({ type: "SET_RELUNCH_ON_SELECTION" });
+
+      renderTabs();
+      renderChosenEffects();
+      send({ type: "LIST_FILTERS" });
+      send({ type: "GET_SELECTION" });
+    </script>
+  </body>
+</html>

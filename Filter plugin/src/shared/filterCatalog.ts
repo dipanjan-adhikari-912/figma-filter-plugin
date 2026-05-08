@@ -1,0 +1,73 @@
+import type { FilterDescriptor } from "./filterTypes";
+
+export const FILTER_CATALOG: FilterDescriptor[] = [
+  { id: "metaball-gradient-mesh", name: "Metaball Gradient Mesh", category: "Color & Tone", description: "Organic gradient blobs and mesh blend.", premium: true },
+  { id: "brightness-contrast", name: "Brightness Contrast", category: "Color & Tone", description: "Adjust brightness and contrast levels." },
+  { id: "hue-saturation", name: "Hue Saturation", category: "Color & Tone", description: "Shift hue and saturation intensity." },
+  { id: "curves", name: "Curves", category: "Color & Tone", description: "Tone curve adjustments for RGB channels." },
+  { id: "curves-hsl", name: "Curves HSL", category: "Color & Tone", description: "Curve adjustments in HSL domain." },
+  { id: "chromatic-aberration", name: "Chromatic Aberration", category: "Color & Tone", description: "RGB channel fringing effect.", premium: true },
+  { id: "gradient-map", name: "Gradient Map", category: "Color & Tone", description: "Map luminance to gradient colors.", premium: true },
+  { id: "lavels", name: "Lavels", category: "Color & Tone", description: "Input and output tonal levels.", premium: true },
+  { id: "gamma", name: "Gamma", category: "Color & Tone", description: "Midtone gamma correction." },
+  { id: "soft-contrast", name: "Soft Contrast", category: "Color & Tone", description: "Gentle contrast curve shaping." },
+  { id: "sepia", name: "Sepia", category: "Color & Tone", description: "Warm vintage sepia grading." },
+  { id: "vibrance", name: "Vibrance", category: "Color & Tone", description: "Boost muted colors selectively." },
+  { id: "grayscale", name: "Grayscale", category: "Color & Tone", description: "Convert image to grayscale." },
+  { id: "mono", name: "Mono", category: "Color & Tone", description: "Monochrome tonal treatment." },
+
+  { id: "noise-rgb", name: "Noise RGB", category: "Noise & Distort", description: "RGB channel grain noise." },
+  { id: "noise-hsl", name: "Noise HSL", category: "Noise & Distort", description: "Noise in HSL color space." },
+  { id: "simplex-noise", name: "Simplex Noise", category: "Noise & Distort", description: "Procedural simplex grain field." },
+  { id: "noise-displace", name: "Noise Displace", category: "Noise & Distort", description: "Displacement from noise map." },
+  { id: "fluid-destruction", name: "Fluid Destruction", category: "Noise & Distort", description: "Chaotic liquid-like distortion." },
+  { id: "ripple", name: "Ripple", category: "Noise & Distort", description: "Circular wave ripple distortion." },
+
+  { id: "sharpen", name: "Sharpen", category: "Sharpen", description: "General edge sharpening." },
+  { id: "sharpen-luminance", name: "Sharpen Luminance", category: "Sharpen", description: "Sharpen luminance channel only." },
+  { id: "unsharp-mask", name: "Unsharp Mask", category: "Sharpen", description: "Classic unsharp mask sharpening." },
+
+  { id: "gaussian-blur", name: "Gaussian Blur", category: "Blur", description: "Standard gaussian blur." },
+  { id: "lens-blur", name: "Lens Blur", category: "Blur", description: "Lens-like depth blur." },
+  { id: "triangle-blur", name: "Triangle Blur", category: "Blur", description: "Triangle-kernel blur smoothing." },
+  { id: "tilt-shift", name: "Tilt Shift", category: "Blur", description: "Miniature style directional blur." },
+  { id: "zoom-blur", name: "Zoom Blur", category: "Blur", description: "Radial zoom streak blur." },
+  { id: "denoise", name: "Denoise", category: "Blur", description: "Reduce image noise." },
+
+  { id: "droplets-on-water", name: "Droplets on water", category: "Water", description: "Water droplet refraction effect.", premium: true },
+  { id: "ripple-propagation", name: "Ripple Propagation", category: "Water", description: "Animated-like ripple propagation.", premium: true },
+
+  { id: "ink", name: "Ink", category: "Stylize", description: "Ink-style drawing treatment." },
+  { id: "cartoon", name: "Cartoon", category: "Stylize", description: "Cartoon edge and color quantization." },
+  { id: "posterization", name: "Posterization", category: "Stylize", description: "Reduce tonal color bands.", premium: true },
+  { id: "flat-chromatic-aberration", name: "Flat Chromatic Aberration", category: "Stylize", description: "Flat RGB split stylization.", premium: true },
+  { id: "emboss", name: "Emboss", category: "Stylize", description: "Embossed relief shading." },
+  { id: "crosshatch", name: "Crosshatch", category: "Stylize", description: "Crosshatch sketch lines." },
+  { id: "night", name: "Night", category: "Stylize", description: "Cool low-light grading." },
+  { id: "bleach", name: "Bleach", category: "Stylize", description: "Bleach bypass inspired look." },
+  { id: "neon", name: "Neon", category: "Stylize", description: "Neon glow edge treatment." },
+  { id: "lsd", name: "Lsd", category: "Stylize", description: "Psychedelic color treatment." },
+  { id: "edge-work", name: "Edge Work", category: "Stylize", description: "Edge extraction and enhancement." },
+  { id: "blackwhite", name: "BlackWhite", category: "Stylize", description: "High-contrast black and white." },
+  { id: "outline", name: "Outline", category: "Stylize", description: "Outline edge drawing effect." },
+  { id: "symbols", name: "Symbols", category: "Stylize", description: "Symbolic stylization effect." },
+  { id: "euphoria", name: "Euphoria", category: "Stylize", description: "Dreamy vibrant glow aesthetic.", premium: true },
+  { id: "light-rays", name: "Light Rays", category: "Stylize", description: "Directional volumetric rays." },
+
+  { id: "lomo", name: "Lomo", category: "Retro", description: "Lomo camera-inspired style." },
+  { id: "night-vision", name: "Night Vision", category: "Retro", description: "Green night-vision look." },
+  { id: "vignette", name: "Vignette", category: "Retro", description: "Edge darkening vignette." },
+  { id: "color-halftone", name: "Color Halftone", category: "Retro", description: "CMYK halftone dot treatment." },
+  { id: "dot-screen", name: "Dot Screen", category: "Retro", description: "Monochrome dot-screen pattern." },
+  { id: "invert-color", name: "Invert Color", category: "Retro", description: "Invert RGB channels." },
+
+  { id: "bulge-pinch", name: "Bulge / Pinch", category: "Geometry", description: "Radial bulge and pinch warping." },
+  { id: "swirl", name: "Swirl", category: "Geometry", description: "Twist image around center point." },
+  { id: "tunnel", name: "Tunnel", category: "Geometry", description: "Tunnel-like radial warp." },
+  { id: "perspective", name: "Perspective", category: "Geometry", description: "Perspective distortion transform." },
+  { id: "hexagonal-pixelate", name: "Hexagonal Pixelate", category: "Geometry", description: "Hexagonal pixelation blocks." },
+  { id: "quadrangular-pixelate", name: "Quadrangular Pixelate", category: "Geometry", description: "Square pixelation blocks." },
+
+  { id: "alpha", name: "Alpha", category: "Utility", description: "Transparency by brightness (darker = more transparent)." },
+  { id: "fxaa-antialiasing", name: "FXAA Antialiasing", category: "Utility", description: "Lightweight edge anti-aliasing." }
+];
