@@ -6,7 +6,7 @@
     "jsx": "react-jsx",
     "strict": true,
     "lib": ["ES2020", "DOM"],
-    "types": ["@figma/plugin-typings"],
+    "types": ["@figma/plugin-typings", "node"],
     "skipLibCheck": true,
     "baseUrl": ".",
     "paths": {

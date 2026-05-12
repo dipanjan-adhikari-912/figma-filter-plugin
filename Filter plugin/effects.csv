@@ -1,0 +1,56 @@
+order,id,name,category,premium,description,levers
+1,brightness-contrast,Brightness Contrast,Color & Tone,false,Adjust brightness and contrast levels.,Brightness; Contrast
+2,hue-saturation,Hue Saturation,Color & Tone,false,Shift hue and saturation intensity.,Hue shift; Saturation
+3,curves,Curves,Color & Tone,false,Tone curve adjustments for RGB channels.,Curve strength; Midtone pivot
+4,curves-hsl,Curves HSL,Color & Tone,false,Curve adjustments in HSL domain.,Curve strength; Midtone pivot
+5,chromatic-aberration,Chromatic Aberration,Color & Tone,true,RGB channel fringing effect.,Separation px; Angle deg
+6,gradient-map,Gradient Map,Color & Tone,true,Map luminance to gradient colors.,Blend
+7,gamma,Gamma,Color & Tone,false,Midtone gamma correction.,Gamma
+8,sepia,Sepia,Color & Tone,false,Warm vintage sepia grading.,Amount
+9,vibrance,Vibrance,Color & Tone,false,Boost muted colors selectively.,Vibrance
+10,grayscale,Grayscale,Color & Tone,false,Convert image to grayscale.,Amount
+11,noise-rgb,Noise RGB,Noise & Distort,false,RGB channel grain noise.,Noise
+12,noise-hsl,Noise HSL,Noise & Distort,false,Noise in HSL color space.,Noise
+13,simplex-noise,Simplex Noise,Noise & Distort,false,Procedural simplex grain field.,Strength; Scale
+14,noise-displace,Noise Displace,Noise & Distort,false,Displacement from noise map.,Displacement; Scale
+15,fluid-destruction,Fluid Destruction,Noise & Distort,false,Chaotic liquid-like distortion.,Strength; Frequency
+16,ripple,Ripple,Noise & Distort,false,Circular wave ripple distortion.,Frequency; Amplitude; Center X; Center Y
+17,sharpen,Sharpen,Sharpen,false,General edge sharpening.,
+18,sharpen-luminance,Sharpen Luminance,Sharpen,false,Sharpen luminance channel only.,Amount
+19,unsharp-mask,Unsharp Mask,Sharpen,false,Classic unsharp mask sharpening.,Amount; Blur radius
+20,gaussian-blur,Gaussian Blur,Blur,false,Standard gaussian blur.,Radius
+21,lens-blur,Lens Blur,Blur,false,Lens-like depth blur.,Radius; Iris rotate deg; Highlight thresh
+22,triangle-blur,Triangle Blur,Blur,false,Triangle-kernel blur smoothing.,Radius
+23,zoom-blur,Zoom Blur,Blur,false,Radial zoom streak blur.,Strength; Center X; Center Y
+24,denoise,Denoise,Blur,false,Reduce image noise.,
+25,droplets-on-water,Droplets on water,Water,true,Water droplet refraction effect.,Drop size; Distort
+26,ripple-propagation,Ripple Propagation,Water,true,Animated-like ripple propagation.,Ripples; Strength; Center X; Center Y
+27,ink,Ink,Stylize,false,Ink-style drawing treatment.,
+28,cartoon,Cartoon,Stylize,false,Cartoon edge and color quantization.,
+29,posterization,Posterization,Stylize,true,Reduce tonal color bands.,Color steps
+30,flat-chromatic-aberration,Flat Chromatic Aberration,Stylize,true,Flat RGB split stylization.,Separation px; Angle deg
+31,emboss,Emboss,Stylize,false,Embossed relief shading.,
+32,crosshatch,Crosshatch,Stylize,false,Crosshatch sketch lines.,Line density
+33,night,Night,Stylize,false,Cool low-light grading.,
+34,bleach,Bleach,Stylize,false,Bleach bypass inspired look.,
+35,neon,Neon,Stylize,false,Neon glow edge treatment.,Glow; Edge pick
+36,lsd,Lsd,Stylize,false,Psychedelic color treatment.,Intensity
+37,edge-work,Edge Work,Stylize,false,Edge extraction and enhancement.,Edge threshold
+38,blackwhite,BlackWhite,Stylize,false,High-contrast black and white.,Contrast
+39,outline,Outline,Stylize,false,Outline edge drawing effect.,
+40,euphoria,Euphoria,Stylize,true,Dreamy vibrant glow aesthetic.,Dream mix
+41,light-rays,Light Rays,Stylize,false,Directional volumetric rays.,Flare; Center X; Center Y
+42,lomo,Lomo,Retro,false,Lomo camera-inspired style.,
+43,night-vision,Night Vision,Retro,false,Green night-vision look.,
+44,vignette,Vignette,Retro,false,Edge darkening vignette.,Amount; Center X; Center Y
+45,color-halftone,Color Halftone,Retro,false,CMYK halftone dot treatment.,Cell size; Angle deg
+46,dot-screen,Dot Screen,Retro,false,Monochrome dot-screen pattern.,Cell size; Angle deg
+47,invert-color,Invert Color,Retro,false,Invert RGB channels.,
+48,bulge-pinch,Bulge / Pinch,Geometry,false,Radial bulge and pinch warping.,Bulge / pinch; Radius; Center X; Center Y
+49,swirl,Swirl,Geometry,false,Twist image around center point.,Twist; Radius; Center X; Center Y
+50,tunnel,Tunnel,Geometry,false,Tunnel-like radial warp.,Depth; Center X; Center Y
+51,perspective,Perspective,Geometry,false,Perspective distortion transform.,Skew
+52,hexagonal-pixelate,Hexagonal Pixelate,Geometry,false,Hexagonal pixelation blocks.,Cell size
+53,quadrangular-pixelate,Quadrangular Pixelate,Geometry,false,Square pixelation blocks.,Block size
+54,alpha,Alpha,Utility,false,Transparency by brightness (darker = more transparent).,Invert mask
+55,fxaa-antialiasing,FXAA Antialiasing,Utility,false,Lightweight edge anti-aliasing.,Smooth
